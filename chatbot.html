@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chatbot Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0a0015;
+    --bg-secondary: #0d0020;
+    --bg-panel: rgba(15, 5, 35, 0.9);
+    --bg-panel2: rgba(20, 5, 45, 0.85);
+    --accent-cyan: #00e5ff;
+    --accent-purple: #b44fff;
+    --accent-magenta: #ff00cc;
+    --accent-blue: #4444ff;
+    --accent-pink: #ff44aa;
+    --glow-purple: rgba(180, 79, 255, 0.25);
+    --glow-cyan: rgba(0, 229, 255, 0.15);
+    --glow-magenta: rgba(255, 0, 204, 0.2);
+    --text-primary: #e8d4ff;
+    --text-secondary: #9b7dcc;
+    --text-dim: #4a3366;
+    --border: rgba(180, 79, 255, 0.25);
+    --border-bright: rgba(180, 79, 255, 0.6);
+    --border-cyan: rgba(0, 229, 255, 0.3);
+    --nav-width: 160px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(100, 0, 180, 0.12) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(0, 100, 200, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, rgba(180, 0, 255, 0.08) 0%, transparent 50%);
+  }
+
+  /* HEADER */
+  .header {
+    background: rgba(10, 0, 25, 0.97);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    height: 60px;
+    position: relative;
+    z-index: 100;
+    flex-shrink: 0;
+    box-shadow: 0 2px 20px rgba(130, 0, 255, 0.15);
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: var(--nav-width);
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logo-icon svg { width: 100%; height: 100%; }
+
+  .logo-text h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: 20px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #00e5ff, #b44fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 5px;
+    line-height: 1;
+    filter: drop-shadow(0 0 8px rgba(180, 79, 255, 0.6));
+  }
+
+  .logo-text span {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--text-secondary);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  .voice-bar-container {
+    background: rgba(0, 5, 30, 0.85);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 420px;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.08), inset 0 0 20px rgba(0, 0, 50, 0.5);
+  }
+
+  .voice-status {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--accent-cyan);
+    letter-spacing: 2px;
+    white-space: nowrap;
+    text-shadow: 0 0 10px var(--accent-cyan);
+  }
+
+  .wave-bars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    height: 24px;
+  }
+
+  .wave-bar {
+    width: 3px;
+    background: linear-gradient(to top, var(--accent-magenta), var(--accent-cyan));
+    border-radius: 2px;
+    animation: wave 1.2s ease-in-out infinite;
+    opacity: 0.2;
+  }
+
+  .wave-bar.active { opacity: 1; }
+
+  @keyframes wave {
+    0%, 100% { height: 4px; }
+    50% { height: 20px; }
+  }
+
+  .header-right {
+    text-align: right;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .time {
+    font-size: 22px;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    text-shadow: none;
+    filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.5));
+  }
+
+  .date {
+    font-size: 10px;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+  }
+
+  .header-controls {
+    display: flex;
+    gap: 8px;
+    margin-left: 16px;
+  }
+
+  .ctrl-btn {
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .ctrl-btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); }
+  .ctrl-btn.close:hover { background: #cc0000; border-color: #cc0000; color: white; }
+
+  .main-layout {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .nav {
+    width: var(--nav-width);
+    background: rgba(8, 0, 20, 0.95);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    flex-shrink: 0;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    position: relative;
+    border-left: 3px solid transparent;
+  }
+
+  .nav-item:hover {
+    color: var(--text-primary);
+    background: rgba(180, 79, 255, 0.06);
+  }
+
+  .nav-item.active {
+    color: var(--accent-cyan);
+    background: rgba(0, 229, 255, 0.06);
+    border-left-color: var(--accent-cyan);
+  }
+
+  .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .nav-spacer { flex: 1; }
+
+  .nav-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+
+  .active-modules {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .modules-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    color: var(--accent-cyan);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 8px var(--accent-cyan);
+  }
+
+  .module-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .module-tag {
+    background: rgba(180, 79, 255, 0.1);
+    border: 1px solid rgba(180, 79, 255, 0.3);
+    color: var(--text-secondary);
+    font-size: 9px;
+    padding: 3px 7px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+  }
+
+  /* LEFT PANEL */
+  .left-panel {
+    width: 220px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .panel-section {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    box-shadow: 0 0 20px rgba(130, 0, 255, 0.08), inset 0 0 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    color: var(--accent-cyan);
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+    text-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+  }
+
+
+  .status-ring {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ring-container {
+    position: relative;
+    width: 90px;
+    height: 90px;
+  }
+
+  .ring-container svg { transform: rotate(-90deg); }
+
+  .ring-track {
+    fill: none;
+    stroke: rgba(180, 79, 255, 0.1);
+    stroke-width: 6;
+  }
+
+  .ring-progress {
+    fill: none;
+    stroke: url(#ringGrad);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dasharray: 251.2;
+    stroke-dashoffset: 0;
+    filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.8));
+    transition: stroke-dashoffset 0.5s ease;
+  }
+
+  .ring-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 12px var(--accent-cyan);
+  }
+
+  .status-label {
+    font-size: 11px;
+    color: #00ff88;
+    letter-spacing: 1px;
+    text-align: center;
+    text-shadow: 0 0 8px #00ff88;
+  }
+
+ 
+  .cmd-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: rgba(0, 5, 30, 0.6);
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  .cmd-btn:hover {
+    background: var(--glow-purple);
+    border-color: var(--accent-purple);
+    color: var(--accent-purple);
+    box-shadow: 0 0 10px rgba(180, 79, 255, 0.2);
+  }
+
+  .cmd-btn:last-child { margin-bottom: 0; }
+
+  .cmd-icon {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    color: var(--accent-cyan);
+  }
+
+  /* Language */
+  .lang-select {
+    background: rgba(0, 5, 30, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    padding: 8px 12px;
+    width: 100%;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%239b7dcc' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+  }
+
+  .lang-select:focus { border-color: var(--accent-purple); }
+
+  /* CENTER */
+  .center-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Ambient background grid */
+  .center-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(180, 79, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(180, 79, 255, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Corner scan brackets */
+  .scan-corner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-color: rgba(0, 229, 255, 0.4);
+    border-style: solid;
+    z-index: 1;
+  }
+  .scan-corner.tl { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+  .scan-corner.tr { top: 12px; right: 12px; border-width: 2px 2px 0 0; }
+  .scan-corner.bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; }
+  .scan-corner.br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
+
+  .chatbot-face-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .chatbot-face {
+    width: 300px;
+    height: 300px;
+    position: relative;
+  }
+
+  .face-glow {
+    position: absolute;
+    inset: -60px;
+    background: radial-gradient(circle,
+      rgba(100, 0, 255, 0.2) 0%,
+      rgba(180, 79, 255, 0.1) 30%,
+      rgba(0, 100, 255, 0.08) 60%,
+      transparent 75%);
+    border-radius: 50%;
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.06); }
+  }
+
+  .face-rings {
+    position: absolute;
+    inset: 0;
+  }
+
+  .face-ring {
+    position: absolute;
+    border-radius: 50%;
+  }
+
+  /* Outermost ring - purple/magenta gradient spin */
+  .face-ring-outer {
+    inset: -8px;
+    border: 3px solid transparent;
+    background: linear-gradient(var(--bg-primary), var(--bg-primary)) padding-box,
+                linear-gradient(135deg, rgba(180,79,255,0.8), rgba(255,0,204,0.6), rgba(100,0,255,0.4), rgba(0,100,255,0.6)) border-box;
+    animation: spin 12s linear infinite;
+    filter: drop-shadow(0 0 8px rgba(180, 79, 255, 0.5));
+  }
+
+  /* Dashed orbit ring */
+  .face-ring-dashed {
+    inset: 10px;
+    border: 1px dashed rgba(0, 229, 255, 0.25);
+    animation: spin 25s linear infinite reverse;
+  }
+
+  /* Bright thin accent ring */
+  .face-ring-accent {
+    inset: 2px;
+    border: 2px solid transparent;
+    background: linear-gradient(var(--bg-primary), var(--bg-primary)) padding-box,
+                linear-gradient(90deg, rgba(0,229,255,0.9), rgba(180,79,255,0.9), rgba(255,0,204,0.7)) border-box;
+    animation: spin 6s linear infinite;
+    filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.7));
+  }
+
+  /* Middle glow ring */
+  .face-ring-mid {
+    inset: 18px;
+    border: 1.5px solid rgba(180, 79, 255, 0.3);
+    animation: spin 18s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .face-hologram {
+    position: absolute;
+    inset: 28px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle,
+      rgba(60, 0, 150, 0.5) 0%,
+      rgba(30, 0, 80, 0.6) 50%,
+      rgba(0, 0, 30, 0.8) 100%);
+  }
+
+  .face-hologram canvas {
+    width: 100%;
+    height: 100%;
+    opacity: 0.95;
+  }
+
+  .face-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 8px;
+    margin-top: 12px;
+    filter: drop-shadow(0 0 10px rgba(180, 79, 255, 0.7));
+  }
+
+  .face-subtitle {
+    font-size: 12px;
+    color: var(--accent-magenta);
+    letter-spacing: 3px;
+    margin-top: 4px;
+    font-weight: 500;
+    font-family: 'Orbitron', monospace;
+    text-shadow: 0 0 8px rgba(255, 0, 204, 0.6);
+  }
+
+  .center-bottom {
+    width: 100%;
+    max-width: 520px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .bottom-wave {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    height: 32px;
+    margin-bottom: 12px;
+  }
+
+  .bottom-wave .wave-bar { opacity: 0.3; }
+  .bottom-wave .wave-bar.active { opacity: 0.9; }
+
+  .controls-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+
+  .ctrl-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(0, 5, 30, 0.8);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 18px;
+  }
+
+  .ctrl-circle:hover {
+    border-color: var(--accent-purple);
+    color: var(--accent-purple);
+    box-shadow: 0 0 15px rgba(180, 79, 255, 0.3);
+  }
+
+  .ctrl-circle.mic-btn {
+    width: 62px;
+    height: 62px;
+    border: 2px solid var(--accent-magenta);
+    color: var(--accent-magenta);
+    background: rgba(255, 0, 204, 0.12);
+    box-shadow: 0 0 25px rgba(255, 0, 204, 0.4), inset 0 0 20px rgba(255, 0, 204, 0.1);
+    font-size: 24px;
+  }
+
+  .ctrl-circle.mic-btn.listening {
+    background: rgba(255, 0, 204, 0.2);
+    box-shadow: 0 0 40px rgba(255, 0, 204, 0.7);
+    animation: mic-pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 25px rgba(255, 0, 204, 0.4); }
+    50% { box-shadow: 0 0 50px rgba(255, 0, 204, 0.9), 0 0 90px rgba(255, 0, 204, 0.3); }
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .main-input {
+    flex: 1;
+    background: rgba(0, 5, 30, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 13px 18px;
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .main-input::placeholder { color: var(--text-dim); }
+  .main-input:focus {
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 12px rgba(180, 79, 255, 0.25);
+  }
+
+  .send-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 6px;
+    border: 1px solid var(--accent-purple);
+    background: rgba(180, 79, 255, 0.15);
+    color: var(--accent-purple);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+
+  .send-btn:hover {
+    background: rgba(180, 79, 255, 0.3);
+    box-shadow: 0 0 15px rgba(180, 79, 255, 0.4);
+  }
+
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .footer-text {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    letter-spacing: 1px;
+  }
+
+  .footer-text span { color: var(--accent-magenta); }
+
+  /* RIGHT PANEL */
+  .right-panel {
+    width: 285px;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid var(--border);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .right-section {
+    border-bottom: 1px solid var(--border);
+    padding: 14px;
+    flex-shrink: 0;
+    background: rgba(8, 0, 20, 0.6);
+  }
+
+  .right-section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    color: var(--accent-cyan);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+  }
+
+  .gesture-feed {
+    background: #000;
+    border-radius: 4px;
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 8px;
+    border: 1px solid rgba(0, 255, 100, 0.15);
+  }
+
+  .gesture-feed canvas,
+  .gesture-feed video {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+    object-fit: contain;
+  }
+
+  .gesture-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .gesture-sample-controls {
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .gesture-sample-controls .gesture-camera-select {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    margin-top: 0;
+  }
+
+  .gesture-sample-controls .gesture-button {
+    flex: 0 0 86px;
+  }
+
+  .gesture-camera-select {
+    width: 100%;
+    margin-top: 8px;
+    padding: 6px 8px;
+    border: 1px solid var(--border-cyan);
+    border-radius: 4px;
+    background: rgba(0, 5, 30, 0.9);
+    color: var(--accent-cyan);
+    font: 11px 'Share Tech Mono', monospace;
+  }
+
+  .gesture-button {
+    flex: 1;
+    border: 1px solid var(--border-cyan);
+    border-radius: 4px;
+    background: rgba(0, 229, 255, 0.08);
+    color: var(--accent-cyan);
+    padding: 6px 8px;
+    font: 600 11px 'Orbitron', monospace;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+
+  .gesture-button:hover:not(:disabled) {
+    background: rgba(0, 229, 255, 0.18);
+  }
+
+  .gesture-button:disabled {
+    opacity: 0.45;
+    cursor: wait;
+  }
+
+  .gesture-hint {
+    color: var(--text-dim);
+    font-size: 10px;
+    line-height: 1.4;
+    margin-top: 7px;
+  }
+
+  .gesture-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .gesture-row {
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+  }
+
+  .gesture-row .val {
+    color: var(--accent-cyan);
+    font-weight: 600;
+    text-shadow: 0 0 6px rgba(0, 229, 255, 0.5);
+  }
+
+  /* Status dot */
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #7b547f;
+    box-shadow: 0 0 6px #7b547f;
+  }
+
+  .status-dot.active {
+    background: #00ff88;
+    box-shadow: 0 0 6px #00ff88;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* AI Response */
+  .ai-response-panel {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8, 0, 20, 0.6);
+    min-height: 120px;
+    max-height: 160px;
+  }
+
+  .response-text {
+    flex: 1;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--accent-cyan);
+    font-family: 'Share Tech Mono', monospace;
+    padding-right: 4px;
+    text-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
+  }
+
+  .response-text::-webkit-scrollbar { width: 3px; }
+  .response-text::-webkit-scrollbar-track { background: transparent; }
+  .response-text::-webkit-scrollbar-thumb { background: var(--text-dim); border-radius: 3px; }
+
+  .response-wave {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    height: 16px;
+    margin-top: 8px;
+    border: 1px solid rgba(180, 79, 255, 0.15);
+    border-radius: 3px;
+    padding: 0 4px;
+    background: rgba(0, 0, 20, 0.5);
+  }
+
+  .response-wave .wave-bar {
+    width: 2px;
+    opacity: 0.4;
+  }
+
+  .speaker-icon {
+    color: var(--text-dim);
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .speaker-icon:hover { color: var(--accent-cyan); }
+
+  /* Homework */
+  .homework-panel {
+    flex: 1;
+    padding: 14px;
+    overflow-y: auto;
+    min-height: 0;
+    background: rgba(8, 0, 20, 0.5);
+  }
+
+  .homework-panel::-webkit-scrollbar { width: 3px; }
+  .homework-panel::-webkit-scrollbar-track { background: transparent; }
+  .homework-panel::-webkit-scrollbar-thumb { background: var(--text-dim); }
+
+  .hw-question {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  .hw-question .q-label { color: var(--text-dim); }
+  .hw-question .q-text { color: var(--text-primary); }
+
+  .hw-steps {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+
+  .hw-steps .step-num { color: var(--text-dim); }
+  .hw-steps .step-label { color: var(--accent-cyan); font-weight: 600; }
+  .hw-steps .step-val { color: var(--accent-purple); }
+
+  /* Loading */
+  .loading-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .loading-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--accent-purple);
+    border-radius: 50%;
+    animation: dot-bounce 1.2s ease-in-out infinite;
+  }
+
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes dot-bounce {
+    0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+    40% { transform: scale(1.2); opacity: 1; }
+  }
+
+  /* Scrollbar styling for left panel */
+  .left-panel::-webkit-scrollbar { width: 3px; }
+  .left-panel::-webkit-scrollbar-track { background: transparent; }
+  .left-panel::-webkit-scrollbar-thumb { background: var(--text-dim); }
+
+  /* Scan line effect */
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(180, 79, 255, 0.008) 2px,
+      rgba(180, 79, 255, 0.008) 4px
+    );
+    z-index: 1000;
+  }
+
+  /* Thinking animation */
+  @keyframes thinking {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+
+  .thinking { animation: thinking 1s ease-in-out infinite; }
+
+  @media (max-width: 900px) {
+    .main-layout {
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .nav,
+    .left-panel {
+      display: none;
+    }
+
+    .center-panel {
+      flex: none;
+      min-height: calc(100vh - 60px);
+      min-width: 0;
+    }
+
+    .right-panel {
+      width: 100%;
+      overflow: visible;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .header {
+      gap: 8px;
+      padding: 0 10px;
+    }
+
+    .logo-area {
+      min-width: 0;
+    }
+
+    .logo-text h1 {
+      font-size: 15px;
+      letter-spacing: 3px;
+    }
+
+    .header-center {
+      min-width: 0;
+    }
+
+    .voice-bar-container {
+      min-width: 0;
+      padding: 6px 8px;
+    }
+
+    .voice-status {
+      font-size: 8px;
+      letter-spacing: 1px;
+    }
+
+    .header-right,
+    .header-controls {
+      display: none;
+    }
+
+    .center-panel {
+      padding: 12px;
+    }
+
+    .chatbot-face {
+      width: min(220px, 60vw);
+      height: min(220px, 60vw);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-area">
+    <div class="logo-icon">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#00e5ff"/>
+            <stop offset="100%" style="stop-color:#b44fff"/>
+          </linearGradient>
+        </defs>
+        <polygon points="20,2 37,11 37,29 20,38 3,29 3,11" fill="none" stroke="url(#logoGrad)" stroke-width="1.5" opacity="0.8"/>
+        <polygon points="20,6 33,13 33,27 20,34 7,27 7,13" fill="none" stroke="url(#logoGrad)" stroke-width="0.5" opacity="0.3"/>
+        <path d="M12,16 L20,8 L28,16 M16,16 L20,12 L24,16 M14,24 L20,30 L26,24" fill="none" stroke="url(#logoGrad)" stroke-width="1.5"/>
+        <circle cx="20" cy="20" r="3" fill="url(#logoGrad)" opacity="0.9"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <h1>CHATBOT</h1>
+      <span>AI ASSISTANT</span>
+    </div>
+  </div>
+
+  <div class="header-center">
+    <div class="voice-bar-container">
+      <span class="voice-status" id="voiceStatus">Listening...</span>
+      <div class="wave-bars" id="headerWave"></div>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:16px;">
+    <div class="header-right">
+      <div class="time" id="clock">00:00:00</div>
+      <div class="date" id="dateDisplay">Loading...</div>
+    </div>
+    <div class="header-controls">
+      <button class="ctrl-btn">—</button>
+      <button class="ctrl-btn">⬜</button>
+      <button class="ctrl-btn close">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-layout">
+
+  <!-- LEFT NAV -->
+  <nav class="nav">
+    <div class="nav-item active" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </div>
+    <div class="nav-item" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Chat
+    </div>
+    <div class="nav-item" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Commands
+    </div>
+    <div class="nav-item" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      Homework
+    </div>
+    <div class="nav-item" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      System
+    </div>
+    <div class="nav-item" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </div>
+    <div class="nav-item" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      Language
+    </div>
+    <div class="nav-spacer"></div>
+    <div class="nav-bottom">
+      <div class="nav-item" style="color:#b44fff; border-left-color:#b44fff; background:rgba(180,79,255,0.08);" onclick="setNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 00-2-2H8a2 2 0 00-2 2v5M3 12h18M3 16h18M7 20h10"/></svg>
+        Gesture
+      </div>
+      <div class="nav-item" onclick="setNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        Exit
+      </div>
+    </div>
+    <div class="active-modules">
+      <div class="modules-title">ACTIVE MODULES</div>
+      <div class="module-tags">
+        <span class="module-tag">Voice Recog.</span>
+        <span class="module-tag">Gesture Ctrl</span>
+        <span class="module-tag">AI Engine</span>
+        <span class="module-tag">Web Search</span>
+        <span class="module-tag">Speech Synth</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <!-- System Status -->
+    <div class="panel-section">
+      <div class="section-title">SYSTEM STATUS</div>
+      <div class="status-ring">
+        <div class="ring-container">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#00e5ff"/>
+                <stop offset="100%" style="stop-color:#b44fff"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-track" cx="45" cy="45" r="40"/>
+            <circle class="ring-progress" cx="45" cy="45" r="40" id="systemRing"/>
+          </svg>
+          <div class="ring-text">100%</div>
+        </div>
+        <div class="status-label">All Systems Operational</div>
+      </div>
+    </div>
+
+    <!-- Quick Commands -->
+    <div class="panel-section">
+      <div class="section-title">QUICK COMMANDS</div>
+      <button class="cmd-btn" onclick="quickCmd('Open YouTube')">
+        <div class="cmd-icon">▶</div>
+        Open YouTube
+      </button>
+      <button class="cmd-btn" onclick="quickCmd('Search Wikipedia')">
+        <div class="cmd-icon">W</div>
+        Search Wikipedia
+      </button>
+      <button class="cmd-btn" onclick="quickCmd('Solve this math: 2x^2 - 5x - 3 = 0')">
+        <div class="cmd-icon">Σ</div>
+        Solve Math Problem
+      </button>
+      <button class="cmd-btn" onclick="quickCmd('Open Calculator')">
+        <div class="cmd-icon">⊞</div>
+        Open Calculator
+      </button>
+      <button class="cmd-btn" onclick="quickCmd('Tell me a Joke')">
+        <div class="cmd-icon">☺</div>
+        Tell me a Joke
+      </button>
+    </div>
+
+    <!-- Language -->
+    <div class="panel-section">
+      <div class="section-title">LANGUAGE</div>
+      <select class="lang-select">
+        <option>🌐  English</option>
+        <option>🌐  Spanish</option>
+        <option>🌐  French</option>
+        <option>🌐  German</option>
+        <option>🌐  Hindi</option>
+        <option>🌐  Japanese</option>
+        <option>🌐  Chinese</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- CENTER PANEL -->
+  <div class="center-panel">
+    <div class="scan-corner tl"></div>
+    <div class="scan-corner tr"></div>
+    <div class="scan-corner bl"></div>
+    <div class="scan-corner br"></div>
+
+    <div class="chatbot-face-container">
+      <div style="display:flex; flex-direction:column; align-items:center;">
+        <div class="chatbot-face" id="chatbotFace">
+          <div class="face-glow"></div>
+          <div class="face-rings">
+            <div class="face-ring face-ring-outer"></div>
+            <div class="face-ring face-ring-dashed"></div>
+            <div class="face-ring face-ring-mid"></div>
+            <div class="face-ring face-ring-accent"></div>
+          </div>
+          <div class="face-hologram">
+            <canvas id="faceCanvas" width="244" height="244"></canvas>
+          </div>
+        </div>
+        <div class="face-label">CHATBOT</div>
+        <div class="face-subtitle" id="faceSubtitle">ERROR OCCURRED</div>
+      </div>
+    </div>
+
+    <div class="center-bottom">
+      <div class="bottom-wave" id="bottomWave"></div>
+      <div class="controls-row">
+        <button class="ctrl-circle" onclick="toggleKeyboard()" title="Keyboard">⌨</button>
+        <button class="ctrl-circle mic-btn" id="micBtn" onclick="toggleMic()" title="Microphone">🎙</button>
+        <button class="ctrl-circle" onclick="toggleWaveform()" title="Waveform">🔊</button>
+      </div>
+      <div class="input-row">
+        <input type="text" class="main-input" id="mainInput" placeholder="Ask me anything..." onkeydown="handleKey(event)"/>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send">➤</button>
+      </div>
+      <div class="footer-text">Chatbot Assistant v2.0.0 &nbsp;|&nbsp; Developed with <span>♥</span> by Developer</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <!-- Gesture Control -->
+    <div class="right-section">
+      <div class="right-section-title">
+        <span>GESTURE CONTROL</span>
+        <div class="status-dot" id="gestureStatusDot"></div>
+      </div>
+      <div class="gesture-feed">
+        <video id="gestureVideo" autoplay muted playsinline></video>
+        <canvas id="gestureCanvas" width="257" height="140"></canvas>
+      </div>
+      <div class="gesture-info">
+        <div class="gesture-row">Gesture: <span class="val" id="gestureLabel">Camera off</span></div>
+        <div class="gesture-row">Action: <span class="val" id="gestureAction">Start camera to type</span></div>
+      </div>
+      <div class="gesture-actions">
+        <button class="gesture-button" id="gestureStartButton" onclick="startGestureControl()">START CAMERA</button>
+        <button class="gesture-button" id="gestureStopButton" onclick="stopGestureControl()" disabled>STOP</button>
+      </div>
+      <select class="gesture-camera-select" id="gestureCameraSelect" aria-label="Select webcam" onchange="changeGestureCamera()" hidden></select>
+      <div class="gesture-sample-controls">
+        <select class="gesture-camera-select" id="gestureSampleLabel" aria-label="Sign label to collect" onchange="refreshGestureSampleCounts()">
+          <option value="a">Collect letter A</option>
+          <option value="b">Collect letter B</option>
+          <option value="c">Collect letter C</option>
+          <option value="d">Collect letter D</option>
+          <option value="e">Collect letter E</option>
+          <option value="f">Collect letter F</option>
+          <option value="g">Collect letter G</option>
+          <option value="h">Collect letter H</option>
+          <option value="i">Collect letter I</option>
+          <option value="j">Collect letter J</option>
+          <option value="k">Collect letter K</option>
+          <option value="l">Collect letter L</option>
+          <option value="m">Collect letter M</option>
+          <option value="n">Collect letter N</option>
+          <option value="o">Collect letter O</option>
+          <option value="p">Collect letter P</option>
+          <option value="q">Collect letter Q</option>
+          <option value="r">Collect letter R</option>
+          <option value="s">Collect letter S</option>
+          <option value="t">Collect letter T</option>
+          <option value="u">Collect letter U</option>
+          <option value="v">Collect letter V</option>
+          <option value="w">Collect letter W</option>
+          <option value="x">Collect letter X</option>
+          <option value="y">Collect letter Y</option>
+          <option value="z">Collect letter Z</option>
+        </select>
+        <button class="gesture-button" id="gestureCaptureButton" onclick="captureGestureSample()" disabled>CAPTURE</button>
+      </div>
+      <div class="gesture-hint" id="gestureSampleStatus" aria-live="polite">Start the camera to collect labeled webcam samples.</div>
+      <div class="gesture-hint">Hold each sign inside the green box. Capture at least 30 varied samples per letter, changing hand position or lighting slightly; avoid duplicate shots. These samples stay on this computer and can fine-tune the ISL classifier. The green-box detector uses YOLO11n.</div>
+      <div class="gesture-hint">For live typing, match an ISL letter pose and hold still in bright light. Uncertain predictions are ignored.</div>
+    </div>
+
+    <!-- AI Response -->
+    <div class="ai-response-panel">
+      <div class="right-section-title">
+        <span>AI RESPONSE</span>
+        <span class="speaker-icon" onclick="speakResponse()" title="Speak">🔊</span>
+      </div>
+      <div class="response-text" id="responseText">
+        Connection error, Sir.<br>
+        Please check your network.
+      </div>
+      <div class="response-wave" id="responseWave"></div>
+    </div>
+
+    <!-- Homework Solver -->
+    <div class="homework-panel">
+      <div class="right-section-title">HOMEWORK SOLVER</div>
+      <div id="homeworkContent">
+        <div class="hw-question">
+          <span class="q-label">Q. </span>
+          <span class="q-text">Solve the equation: 2x² − 5x − 3 = 0</span>
+        </div>
+        <div class="hw-steps">
+          <div style="color:var(--text-secondary)">Step-by-step solution:</div>
+          <div><span class="step-num">1. </span><span class="step-label">Identify: </span><span class="step-val">a = 2, b = −5, c = −3</span></div>
+          <div><span class="step-num">2. </span><span class="step-label">Use formula: </span><span class="step-val">x = −b ± √(b²−4ac) / 2a</span></div>
+          <div><span class="step-num">3. </span><span class="step-label">Substitute: </span></div>
+          <div style="padding-left:12px"><span class="step-val">x = −(−5) ± √((−5)² − 4(2)(−3)) / 2(2)</span></div>
+          <div><span class="step-num">4. </span><span class="step-label">Simplify: </span></div>
+          <div style="padding-left:12px"><span class="step-val">x = 5 ± √49 / 4 = 5 ± 7 / 4</span></div>
+          <div><span class="step-num">5. </span><span class="step-label">Solutions: </span></div>
+          <div style="padding-left:12px"><span class="step-val">x₁ = (5 + 7) / 4 = 12 / 4 = 3</span></div>
+          <div style="padding-left:12px"><span class="step-val">x₂ = (5 − 7) / 4 = −2 / 4 = −0.5</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const chatbotServiceUrl = 'http://127.0.0.1:5000/';
+if (location.host !== '127.0.0.1:5000' && location.host !== 'localhost:5000') {
+  location.replace(chatbotServiceUrl);
+}
+
+// ============== CLOCK ==============
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('dateDisplay').textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ============== WAVE BARS ==============
+function createWaveBars(containerId, count, animated) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  for (let i = 0; i < count; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'wave-bar' + (animated ? ' active' : '');
+    bar.style.animationDelay = `${i * 0.055}s`;
+    bar.style.animationDuration = `${0.7 + Math.random() * 0.9}s`;
+    container.appendChild(bar);
+  }
+}
+createWaveBars('headerWave', 48, true);
+createWaveBars('bottomWave', 54, false);
+createWaveBars('responseWave', 30, false);
+
+function setWaveActive(id, active) {
+  const bars = document.getElementById(id)?.querySelectorAll('.wave-bar');
+  if (!bars) return;
+  bars.forEach(b => { if (active) b.classList.add('active'); else b.classList.remove('active'); });
+}
+
+// ============== FACE CANVAS ==============
+const faceCanvas = document.getElementById('faceCanvas');
+const fCtx = faceCanvas.getContext('2d');
+let facePhase = 0;
+
+function drawFace() {
+  facePhase += 0.025;
+  const w = faceCanvas.width, h = faceCanvas.height;
+  fCtx.clearRect(0, 0, w, h);
+
+  // Background
+  const bgGrad = fCtx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w/2);
+  bgGrad.addColorStop(0, 'rgba(40, 0, 100, 0.6)');
+  bgGrad.addColorStop(0.6, 'rgba(10, 0, 40, 0.8)');
+  bgGrad.addColorStop(1, 'rgba(0, 0, 10, 0.95)');
+  fCtx.fillStyle = bgGrad;
+  fCtx.fillRect(0, 0, w, h);
+
+  // Scan line
+  const scanY = ((facePhase * 18) % h);
+  fCtx.fillStyle = 'rgba(180, 79, 255, 0.04)';
+  fCtx.fillRect(0, scanY, w, 2);
+
+  // Grid lines
+  fCtx.strokeStyle = 'rgba(180, 79, 255, 0.06)';
+  fCtx.lineWidth = 0.5;
+  for (let x = 0; x < w; x += 22) {
+    fCtx.beginPath(); fCtx.moveTo(x, 0); fCtx.lineTo(x, h); fCtx.stroke();
+  }
+  for (let y = 0; y < h; y += 22) {
+    fCtx.beginPath(); fCtx.moveTo(0, y); fCtx.lineTo(w, y); fCtx.stroke();
+  }
+
+  const cx = w/2, cy = h/2;
+  const breathe = Math.sin(facePhase * 0.7) * 4;
+
+  // Face oval
+  fCtx.beginPath();
+  fCtx.ellipse(cx, cy + 5, 62 + breathe * 0.3, 78 + breathe * 0.3, 0, 0, Math.PI * 2);
+  const faceGrad = fCtx.createRadialGradient(cx, cy, 0, cx, cy, 80);
+  faceGrad.addColorStop(0, 'rgba(80, 20, 180, 0.35)');
+  faceGrad.addColorStop(0.7, 'rgba(30, 0, 80, 0.2)');
+  faceGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  fCtx.fillStyle = faceGrad;
+  fCtx.fill();
+  fCtx.strokeStyle = `rgba(180, 79, 255, ${0.25 + 0.15 * Math.sin(facePhase)})`;
+  fCtx.lineWidth = 1;
+  fCtx.stroke();
+
+  // Eyes
+  const eyeY = cy - 12 + Math.sin(facePhase * 0.8) * 2;
+  const eyeOffX = 22;
+  const eyeGlow = 0.7 + 0.3 * Math.sin(facePhase * 1.5);
+
+  [-eyeOffX, eyeOffX].forEach(dx => {
+    const ex = cx + dx;
+
+    // Outer eye ring
+    fCtx.beginPath();
+    fCtx.ellipse(ex, eyeY, 16, 10, 0, 0, Math.PI * 2);
+    fCtx.strokeStyle = `rgba(0, 229, 255, ${0.5 * eyeGlow})`;
+    fCtx.lineWidth = 1;
+    fCtx.stroke();
+
+    // Inner iris
+    fCtx.beginPath();
+    fCtx.ellipse(ex, eyeY, 10, 7, 0, 0, Math.PI * 2);
+    const irisGrad = fCtx.createRadialGradient(ex, eyeY, 0, ex, eyeY, 10);
+    irisGrad.addColorStop(0, `rgba(180, 79, 255, ${eyeGlow})`);
+    irisGrad.addColorStop(0.5, `rgba(100, 0, 200, ${0.6 * eyeGlow})`);
+    irisGrad.addColorStop(1, 'rgba(0, 0, 50, 0.3)');
+    fCtx.fillStyle = irisGrad;
+    fCtx.fill();
+    fCtx.strokeStyle = `rgba(0, 229, 255, ${0.7 * eyeGlow})`;
+    fCtx.lineWidth = 1.2;
+    fCtx.stroke();
+
+    // Pupil glow
+    fCtx.beginPath();
+    fCtx.arc(ex, eyeY, 4, 0, Math.PI * 2);
+    fCtx.fillStyle = `rgba(0, 229, 255, ${0.8 * eyeGlow})`;
+    fCtx.fill();
+
+    // Eye glow effect
+    const eyeGlowGrad = fCtx.createRadialGradient(ex, eyeY, 0, ex, eyeY, 22);
+    eyeGlowGrad.addColorStop(0, `rgba(0, 229, 255, ${0.15 * eyeGlow})`);
+    eyeGlowGrad.addColorStop(1, 'transparent');
+    fCtx.fillStyle = eyeGlowGrad;
+    fCtx.beginPath();
+    fCtx.arc(ex, eyeY, 22, 0, Math.PI * 2);
+    fCtx.fill();
+  });
+
+  // Nose bridge
+  fCtx.beginPath();
+  fCtx.moveTo(cx, eyeY + 12);
+  fCtx.lineTo(cx - 8, cy + 10);
+  fCtx.lineTo(cx + 8, cy + 10);
+  fCtx.strokeStyle = `rgba(180, 79, 255, 0.3)`;
+  fCtx.lineWidth = 0.8;
+  fCtx.stroke();
+
+  // Mouth
+  const mouthY = cy + 28;
+  fCtx.beginPath();
+  fCtx.moveTo(cx - 20, mouthY);
+  fCtx.bezierCurveTo(cx - 8, mouthY + 6, cx + 8, mouthY + 6, cx + 20, mouthY);
+  fCtx.strokeStyle = `rgba(0, 229, 255, ${0.4 + 0.2 * Math.sin(facePhase * 0.5)})`;
+  fCtx.lineWidth = 1.5;
+  fCtx.stroke();
+
+  // Forehead details
+  fCtx.strokeStyle = 'rgba(180, 79, 255, 0.2)';
+  fCtx.lineWidth = 0.8;
+  fCtx.beginPath();
+  fCtx.moveTo(cx - 30, cy - 55);
+  fCtx.lineTo(cx + 30, cy - 55);
+  fCtx.stroke();
+
+  // Cheek circuit lines
+  [[-1, 1], [1, 1]].forEach(([sx, sy]) => {
+    fCtx.strokeStyle = 'rgba(0, 229, 255, 0.12)';
+    fCtx.lineWidth = 0.7;
+    fCtx.beginPath();
+    fCtx.moveTo(cx + sx * 45, cy);
+    fCtx.lineTo(cx + sx * 60, cy - 10);
+    fCtx.lineTo(cx + sx * 70, cy - 10);
+    fCtx.stroke();
+  });
+
+  requestAnimationFrame(drawFace);
+}
+drawFace();
+
+// ============== GESTURE CANVAS ==============
+const gestureCanvas = document.getElementById('gestureCanvas');
+const gCtx = gestureCanvas.getContext('2d');
+const gestureVideo = document.getElementById('gestureVideo');
+const captureCanvas = document.createElement('canvas');
+const captureContext = captureCanvas.getContext('2d');
+const gestureSampleCanvas = document.createElement('canvas');
+let gestureSampleCounts = {};
+let gestureStream = null;
+let gestureRecognitionTimer = null;
+let gestureRecognitionInFlight = false;
+let gestureCandidate = '';
+let gesturePredictionWindow = [];
+let gestureLastTypedLabel = '';
+let gestureHands = [];
+let gestureNeutralFrames = 0;
+const gestureConfidenceThreshold = 0.5;
+const gestureConfidenceMargin = 0.14;
+const gesturePredictionWindowSize = 9;
+const gestureFramesToConfirm = 7;
+let gestureCameraSwitching = false;
+
+function getGestureRegion() {
+  const width = gestureVideo.videoWidth;
+  const height = gestureVideo.videoHeight;
+  const scale = Math.min(width / 640, height / 480);
+  const side = 400 * scale;
+  return {
+    x: (width - side) / 2,
+    y: (height - side) / 2,
+    side
+  };
+}
+
+function drawGesture() {
+  if (
+    gestureVideo.videoWidth
+    && (gestureCanvas.width !== gestureVideo.videoWidth
+      || gestureCanvas.height !== gestureVideo.videoHeight)
+  ) {
+    gestureCanvas.width = gestureVideo.videoWidth;
+    gestureCanvas.height = gestureVideo.videoHeight;
+  }
+  const width = gestureCanvas.width;
+  const height = gestureCanvas.height;
+  gCtx.fillStyle = '#000810';
+  gCtx.fillRect(0, 0, width, height);
+
+  if (gestureVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+    gCtx.drawImage(gestureVideo, 0, 0, width, height);
+    const region = getGestureRegion();
+    gCtx.strokeStyle = 'rgba(0, 255, 136, 0.95)';
+    gCtx.lineWidth = 2;
+    gCtx.strokeRect(
+      region.x / gestureVideo.videoWidth * width,
+      region.y / gestureVideo.videoHeight * height,
+      region.side / gestureVideo.videoWidth * width,
+      region.side / gestureVideo.videoHeight * height
+    );
+    gestureHands.forEach(hand => {
+      if (hand.box) {
+        gCtx.strokeStyle = '#ffe457';
+        gCtx.lineWidth = 2;
+        gCtx.strokeRect(
+          hand.box[0] * width,
+          hand.box[1] * height,
+          (hand.box[2] - hand.box[0]) * width,
+          (hand.box[3] - hand.box[1]) * height
+        );
+      }
+    });
+  } else {
+    gCtx.fillStyle = 'rgba(0, 229, 255, 0.7)';
+    gCtx.font = '12px "Share Tech Mono", monospace';
+    gCtx.textAlign = 'center';
+    gCtx.fillText('CAMERA OFF', width / 2, height / 2);
+  }
+
+  requestAnimationFrame(drawGesture);
+}
+drawGesture();
+
+function updateGestureStatus(label, action, active = Boolean(gestureStream)) {
+  document.getElementById('gestureLabel').textContent = label;
+  document.getElementById('gestureAction').textContent = action;
+  document.getElementById('gestureStatusDot').classList.toggle('active', active);
+}
+
+async function refreshGestureSampleCounts() {
+  const statusElement = document.getElementById('gestureSampleStatus');
+  try {
+    const response = await fetch('/api/samples');
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Could not load sample counts.');
+    gestureSampleCounts = result.counts || {};
+    const label = document.getElementById('gestureSampleLabel').value;
+    const count = Number(gestureSampleCounts[label] || 0);
+    statusElement.textContent = `Webcam samples for ${label.toUpperCase()}: ${count}/30 minimum · ${result.total} total`;
+  } catch (error) {
+    statusElement.textContent = `Sample count unavailable: ${error.message}`;
+  }
+}
+
+async function captureGestureSample() {
+  const button = document.getElementById('gestureCaptureButton');
+  const label = document.getElementById('gestureSampleLabel').value;
+  const statusElement = document.getElementById('gestureSampleStatus');
+  if (!gestureStream || gestureVideo.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+    statusElement.textContent = 'Start the camera before capturing a sample.';
+    return;
+  }
+  const region = getGestureRegion();
+  const handInsideInput = gestureHands.some(hand => {
+    if (!hand.box) return false;
+    const centerX = ((hand.box[0] + hand.box[2]) / 2) * gestureVideo.videoWidth;
+    const centerY = ((hand.box[1] + hand.box[3]) / 2) * gestureVideo.videoHeight;
+    return centerX >= region.x
+      && centerX <= region.x + region.side
+      && centerY >= region.y
+      && centerY <= region.y + region.side;
+  });
+  if (!handInsideInput) {
+    statusElement.textContent = 'YOLO has not detected a hand. Center the sign inside the green box and try again.';
+    return;
+  }
+
+  button.disabled = true;
+  statusElement.textContent = `Saving webcam sample for ${label.toUpperCase()}...`;
+  try {
+    gestureSampleCanvas.width = 400;
+    gestureSampleCanvas.height = 400;
+    const context = gestureSampleCanvas.getContext('2d');
+    context.drawImage(
+      gestureVideo,
+      region.x,
+      region.y,
+      region.side,
+      region.side,
+      0,
+      0,
+      gestureSampleCanvas.width,
+      gestureSampleCanvas.height
+    );
+    const blob = await new Promise(resolve => gestureSampleCanvas.toBlob(resolve, 'image/jpeg', 0.92));
+    if (!blob) throw new Error('Could not encode the webcam image.');
+
+    const form = new FormData();
+    form.append('label', label);
+    form.append('image', blob, `${label}.jpg`);
+    const response = await fetch('/api/collect', { method: 'POST', body: form });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Could not save webcam sample.');
+    gestureSampleCounts[label] = result.count;
+    statusElement.textContent = `Saved ${label.toUpperCase()} sample ${result.count}/30 minimum · ${result.total_bytes} bytes`;
+  } catch (error) {
+    statusElement.textContent = `Sample capture failed: ${error.message}`;
+  } finally {
+    button.disabled = !gestureStream;
+  }
+}
+
+async function startGestureControl() {
+  const startButton = document.getElementById('gestureStartButton');
+  startButton.disabled = true;
+  updateGestureStatus('Connecting', 'Checking model service...', false);
+
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error('Camera access is unavailable. Open Chatbot from http://127.0.0.1:5000 in a supported browser.');
+    }
+
+    const statusResponse = await fetch('/api/status');
+    if (!statusResponse.ok) {
+      throw new Error('Gesture service unavailable. Start sign_server.py and open http://127.0.0.1:5000.');
+    }
+    const status = await statusResponse.json();
+    if (!statusResponse.ok || !status.ready) {
+      throw new Error(status.error || 'Sign model is not ready. Start the local gesture server.');
+    }
+
+    const cameraSelect = document.getElementById('gestureCameraSelect');
+    const selectedDeviceId = cameraSelect.value;
+    const cameras = (await navigator.mediaDevices.enumerateDevices())
+      .filter(device => device.kind === 'videoinput');
+    cameras.sort((left, right) => {
+      const leftIsBuiltIn = /integrated|built.?in|internal/i.test(left.label);
+      const rightIsBuiltIn = /integrated|built.?in|internal/i.test(right.label);
+      return Number(rightIsBuiltIn) - Number(leftIsBuiltIn);
+    });
+    const cameraIds = cameras.map(camera => camera.deviceId);
+    const cameraCandidates = selectedDeviceId
+      ? [selectedDeviceId, ...cameraIds.filter(id => id !== selectedDeviceId)]
+      : cameraIds;
+
+    if (!cameraCandidates.length) {
+      await openGestureCamera();
+    } else {
+      let cameraError = null;
+      for (const deviceId of cameraCandidates) {
+        try {
+          await openGestureCamera(deviceId);
+          cameraError = null;
+          break;
+        } catch (error) {
+          if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+            throw error;
+          }
+          cameraError = error;
+        }
+      }
+      if (cameraError) throw cameraError;
+    }
+    gestureCandidate = '';
+    gesturePredictionWindow = [];
+    gestureLastTypedLabel = '';
+    gestureHands = [];
+    gestureNeutralFrames = 0;
+    document.getElementById('gestureStopButton').disabled = false;
+    document.getElementById('gestureCaptureButton').disabled = false;
+    updateGestureStatus('No hand', 'Show one sign in the camera');
+    refreshGestureSampleCounts();
+    recognizeGestureFrame();
+  } catch (error) {
+    releaseGestureCamera();
+    updateGestureStatus('Camera unavailable', describeCameraError(error), false);
+    startButton.disabled = false;
+  }
+}
+
+async function openGestureCamera(deviceId = '') {
+  releaseGestureCamera();
+  const videoConstraints = deviceId
+    ? { deviceId: { exact: deviceId }, width: { ideal: 640 }, height: { ideal: 480 } }
+    : { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } };
+  gestureStream = await navigator.mediaDevices.getUserMedia({
+    video: videoConstraints,
+    audio: false
+  });
+  gestureVideo.srcObject = gestureStream;
+  await gestureVideo.play();
+  await refreshGestureCameras();
+}
+
+async function refreshGestureCameras() {
+  const select = document.getElementById('gestureCameraSelect');
+  const activeTrack = gestureStream && gestureStream.getVideoTracks()[0];
+  if (!activeTrack || !navigator.mediaDevices.enumerateDevices) return;
+
+  const activeDeviceId = activeTrack.getSettings().deviceId || '';
+  const cameras = (await navigator.mediaDevices.enumerateDevices())
+    .filter(device => device.kind === 'videoinput');
+  select.replaceChildren();
+
+  cameras.forEach((camera, index) => {
+    const option = document.createElement('option');
+    option.value = camera.deviceId;
+    option.textContent = camera.label || `Camera ${index + 1}`;
+    option.selected = camera.deviceId === activeDeviceId;
+    select.appendChild(option);
+  });
+  select.hidden = cameras.length < 2;
+}
+
+async function changeGestureCamera() {
+  const select = document.getElementById('gestureCameraSelect');
+  if (!select.value || document.getElementById('gestureStopButton').disabled || gestureCameraSwitching) return;
+
+  gestureCameraSwitching = true;
+  try {
+    await openGestureCamera(select.value);
+    updateGestureStatus('Camera ready', 'Show one sign in the camera');
+  } catch (error) {
+    stopGestureControl();
+    updateGestureStatus('Camera unavailable', describeCameraError(error));
+  } finally {
+    gestureCameraSwitching = false;
+  }
+}
+
+function describeCameraError(error) {
+  if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+    return 'Camera blocked. Allow camera access for this site in browser settings, then retry.';
+  }
+  if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+    return 'No webcam found. Connect or enable a camera, then retry.';
+  }
+  if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+    return 'Camera is busy in another app. Close other camera apps and retry.';
+  }
+  if (error.name === 'OverconstrainedError') {
+    return 'That camera is unavailable. Choose another camera and retry.';
+  }
+  return error.message || 'Could not open the camera. Check browser camera permissions and retry.';
+}
+
+function releaseGestureCamera() {
+  if (gestureStream) {
+    gestureStream.getTracks().forEach(track => track.stop());
+    gestureStream = null;
+  }
+  gestureVideo.srcObject = null;
+}
+
+function stopGestureControl() {
+  if (gestureRecognitionTimer !== null) {
+    clearTimeout(gestureRecognitionTimer);
+    gestureRecognitionTimer = null;
+  }
+  releaseGestureCamera();
+  document.getElementById('gestureCameraSelect').hidden = true;
+  gestureRecognitionInFlight = false;
+  gestureCandidate = '';
+  gesturePredictionWindow = [];
+  gestureLastTypedLabel = '';
+  gestureHands = [];
+  gestureNeutralFrames = 0;
+  document.getElementById('gestureStartButton').disabled = false;
+  document.getElementById('gestureStopButton').disabled = true;
+  document.getElementById('gestureCaptureButton').disabled = true;
+  updateGestureStatus('Camera off', 'Start camera to type', false);
+}
+
+async function recognizeGestureFrame() {
+  if (!gestureStream || gestureRecognitionInFlight || gestureVideo.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+    gestureRecognitionTimer = setTimeout(recognizeGestureFrame, 250);
+    return;
+  }
+
+  gestureRecognitionInFlight = true;
+  try {
+    const scale = Math.min(1, 640 / gestureVideo.videoWidth);
+    captureCanvas.width = Math.round(gestureVideo.videoWidth * scale);
+    captureCanvas.height = Math.round(gestureVideo.videoHeight * scale);
+    captureContext.drawImage(
+      gestureVideo,
+      0,
+      0,
+      captureCanvas.width,
+      captureCanvas.height
+    );
+    const frame = await new Promise(resolve => captureCanvas.toBlob(resolve, 'image/jpeg', 0.85));
+    if (!frame || !gestureStream) return;
+
+    const response = await fetch('/api/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'image/jpeg' },
+      body: frame
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Sign prediction failed.');
+    if (!gestureStream) return;
+    handleGesturePrediction(result);
+  } catch (error) {
+    stopGestureControl();
+    updateGestureStatus('Service error', error.message, false);
+  } finally {
+    gestureRecognitionInFlight = false;
+    if (gestureStream) gestureRecognitionTimer = setTimeout(recognizeGestureFrame, 250);
+  }
+}
+
+function handleGesturePrediction(result) {
+  gestureHands = Array.isArray(result.hands) ? result.hands : [];
+  if (result.hand_detected === false) {
+    gestureCandidate = '';
+    gesturePredictionWindow = [];
+    gestureLastTypedLabel = '';
+    gestureHands = [];
+    updateGestureStatus('No hand', 'Place your whole hand inside the green box');
+    return;
+  }
+
+  const label = String(result.label || '').toLowerCase();
+  const confidence = Number(result.confidence);
+  if (label === 'nothing') {
+    gestureNeutralFrames += 1;
+    gestureCandidate = '';
+    gesturePredictionWindow = [];
+    if (gestureNeutralFrames >= 3) gestureLastTypedLabel = '';
+    updateGestureStatus('No hand', 'Return to neutral before repeating a letter');
+    return;
+  }
+  gestureNeutralFrames = 0;
+
+  const runnerUp = result.alternatives?.[1];
+  const margin = runnerUp ? confidence - Number(runnerUp.confidence) : confidence;
+  const accepted = confidence >= gestureConfidenceThreshold
+    && margin >= gestureConfidenceMargin;
+  gesturePredictionWindow.push({
+    label: accepted ? label : '',
+    confidence: accepted ? confidence : 0,
+    margin: accepted ? margin : 0
+  });
+  if (gesturePredictionWindow.length > gesturePredictionWindowSize) {
+    gesturePredictionWindow.shift();
+  }
+
+  const votes = new Map();
+  gesturePredictionWindow.forEach(prediction => {
+    if (!prediction.label) return;
+    const vote = votes.get(prediction.label) || { count: 0, confidence: 0, margin: 0 };
+    vote.count += 1;
+    vote.confidence += prediction.confidence;
+    vote.margin += prediction.margin;
+    votes.set(prediction.label, vote);
+  });
+  const leadingEntry = Array.from(votes.entries())
+    .sort((left, right) => right[1].count - left[1].count)[0];
+  const [leadingLabel, leadingVote] = leadingEntry || ['', { count: 0, confidence: 0, margin: 0 }];
+  const averageConfidence = leadingVote.count
+    ? leadingVote.confidence / leadingVote.count
+    : 0;
+  const averageMargin = leadingVote.count
+    ? leadingVote.margin / leadingVote.count
+    : 0;
+  if (
+    leadingVote.count < gestureFramesToConfirm
+    || averageConfidence < 0.55
+    || averageMargin < 0.16
+  ) {
+    gestureCandidate = leadingVote.count ? leadingLabel : '';
+    updateGestureStatus(
+      accepted ? `${label.toUpperCase()} ${Math.round(confidence * 100)}%` : 'Uncertain sign',
+      leadingVote.count
+        ? `Hold ${leadingLabel.toUpperCase()} steady (${leadingVote.count}/${gestureFramesToConfirm}); use a clear, well-lit view`
+        : 'Match the chart pose; keep the whole hand inside the green box'
+    );
+    return;
+  }
+
+  gestureCandidate = leadingLabel;
+  if (gestureLastTypedLabel === leadingLabel) {
+    updateGestureStatus(leadingLabel.toUpperCase(), 'Typed; show neutral before repeating');
+    return;
+  }
+
+  const input = document.getElementById('mainInput');
+  if (/^[a-z]$/.test(leadingLabel)) {
+    input.value += leadingLabel.toUpperCase();
+    updateGestureStatus(leadingLabel.toUpperCase(), `Typed ${leadingLabel.toUpperCase()}`);
+  } else if (leadingLabel === 'space') {
+    input.value += ' ';
+    updateGestureStatus('SPACE', 'Inserted a space');
+  } else if (leadingLabel === 'del') {
+    input.value = input.value.slice(0, -1);
+    updateGestureStatus('DELETE', 'Removed the last character');
+  } else {
+    updateGestureStatus(leadingLabel.toUpperCase(), 'Not a typing gesture');
+    gestureLastTypedLabel = leadingLabel;
+    return;
+  }
+
+  gestureLastTypedLabel = leadingLabel;
+}
+
+// ============== NAV ==============
+function setNav(el) {
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.remove('active');
+    n.style.color = '';
+    n.style.borderLeftColor = '';
+    n.style.background = '';
+  });
+  el.classList.add('active');
+}
+
+// ============== SPEECH ==============
+let isSpeaking = false;
+let speechSynth = window.speechSynthesis;
+
+function speak(text) {
+  if (speechSynth.speaking) speechSynth.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 0.95;
+  utter.pitch = 0.85;
+  utter.volume = 1;
+  const voices = speechSynth.getVoices();
+  const preferred = voices.find(v => v.name.includes('Male') || v.name.includes('David') || v.name.includes('Daniel') || v.name.includes('Google UK'));
+  if (preferred) utter.voice = preferred;
+  utter.onstart = () => { isSpeaking = true; setWaveActive('responseWave', true); setWaveActive('bottomWave', true); };
+  utter.onend = () => {
+    isSpeaking = false;
+    setWaveActive('responseWave', false);
+    setWaveActive('bottomWave', false);
+    document.getElementById('faceSubtitle').textContent = 'How can I help you, Sir?';
+  };
+  speechSynth.speak(utter);
+}
+
+function speakResponse() {
+  const text = document.getElementById('responseText').innerText;
+  speak(text);
+}
+
+// ============== MIC ==============
+let isListening = false;
+let recognition = null;
+let speechInputStart = '';
+let speechTranscriptReceived = false;
+let speechRecognitionMessage = '';
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  recognition.onresult = (e) => {
+    const transcript = Array.from(e.results)
+      .map(result => result[0].transcript)
+      .join('')
+      .trim();
+    if (transcript) {
+      const separator = speechInputStart && !/\s$/.test(speechInputStart) ? ' ' : '';
+      document.getElementById('mainInput').value = speechInputStart + separator + transcript;
+    }
+
+    if (Array.from(e.results).some(result => result.isFinal)) {
+      speechTranscriptReceived = true;
+      document.getElementById('voiceStatus').textContent = 'Speech typed. Press send to submit.';
+      document.getElementById('mainInput').focus();
+    }
+  };
+
+  recognition.onerror = (e) => {
+    const messages = {
+      'not-allowed': 'Allow microphone access in your browser settings.',
+      'service-not-allowed': 'Microphone speech recognition is blocked by the browser.',
+      'audio-capture': 'No microphone was found. Check your microphone connection.',
+      'no-speech': 'No speech detected. Try again.',
+      'network': 'Speech recognition needs an internet connection.'
+    };
+    speechRecognitionMessage = messages[e.error] || `Microphone error: ${e.error}.`;
+    document.getElementById('voiceStatus').textContent = speechRecognitionMessage;
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    document.getElementById('micBtn').classList.remove('listening');
+    if (!speechRecognitionMessage) {
+      document.getElementById('voiceStatus').textContent = speechTranscriptReceived
+        ? 'Speech typed. Press send to submit.'
+        : 'Listening...';
+    }
+  };
+}
+
+function toggleMic() {
+  if (!recognition) {
+    document.getElementById('voiceStatus').textContent = 'Speech input is not supported in this browser.';
+    return;
+  }
+  if (isListening) {
+    recognition.stop();
+  } else {
+    try {
+      speechInputStart = document.getElementById('mainInput').value.trimEnd();
+      speechTranscriptReceived = false;
+      speechRecognitionMessage = '';
+      recognition.start();
+      isListening = true;
+      document.getElementById('micBtn').classList.add('listening');
+      document.getElementById('voiceStatus').textContent = 'Hearing you...';
+    } catch (error) {
+      document.getElementById('voiceStatus').textContent =
+        error.name === 'InvalidStateError'
+          ? 'Microphone is already listening.'
+          : 'Could not start the microphone. Check browser permissions.';
+    }
+  }
+}
+
+function toggleKeyboard() {
+  document.getElementById('mainInput').focus();
+}
+
+function toggleWaveform() {
+  const bars = document.getElementById('bottomWave').querySelectorAll('.wave-bar');
+  bars.forEach(b => b.classList.toggle('active'));
+}
+
+// ============== AI API ==============
+let conversationHistory = [];
+
+async function callChatbotAI(userMessage) {
+  const messages = [
+    ...conversationHistory.slice(-18),
+    { role: 'user', content: userMessage }
+  ];
+  const response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || `Chat request failed (HTTP ${response.status}).`);
+  }
+  if (typeof data.reply !== 'string' || !data.reply.trim()) {
+    throw new Error('The AI service returned an empty response.');
+  }
+
+  conversationHistory = [...messages, { role: 'assistant', content: data.reply }].slice(-20);
+  return data.reply;
+}
+
+function quickCmd(cmd) {
+  document.getElementById('mainInput').value = cmd;
+  sendMessage();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter') sendMessage();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('mainInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  input.value = '';
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('faceSubtitle').textContent = 'Processing...';
+  document.getElementById('voiceStatus').textContent = 'Thinking...';
+  setWaveActive('headerWave', true);
+  setWaveActive('bottomWave', true);
+
+  document.getElementById('responseText').innerHTML = '<div class="thinking">Processing your request...</div><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>';
+
+  try {
+    const reply = await callChatbotAI(msg);
+    document.getElementById('responseText').textContent = reply;
+
+    if (/solve|equation|calculate|math|\d+x|\d+\^/.test(msg.toLowerCase())) {
+      updateHomework(msg, reply);
+    }
+
+    document.getElementById('faceSubtitle').textContent = 'Speaking...';
+    document.getElementById('voiceStatus').textContent = 'Speaking...';
+    speak(reply);
+
+  } catch(err) {
+    document.getElementById('responseText').textContent = err.message;
+    document.getElementById('faceSubtitle').textContent = 'ERROR OCCURRED';
+  }
+
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('voiceStatus').textContent = 'Listening...';
+  setWaveActive('bottomWave', false);
+}
+
+function updateHomework(question, solution) {
+  const hw = document.getElementById('homeworkContent');
+  const lines = solution.split('\n').filter(l => l.trim());
+  hw.replaceChildren();
+
+  const questionElement = document.createElement('div');
+  questionElement.className = 'hw-question';
+  const questionLabel = document.createElement('span');
+  questionLabel.className = 'q-label';
+  questionLabel.textContent = 'Q. ';
+  const questionText = document.createElement('span');
+  questionText.className = 'q-text';
+  questionText.textContent = question;
+  questionElement.append(questionLabel, questionText);
+  hw.appendChild(questionElement);
+
+  const stepsElement = document.createElement('div');
+  stepsElement.className = 'hw-steps';
+  lines.forEach(line => {
+    const isNum = /^\d+\./.test(line.trim());
+    const lineElement = document.createElement('div');
+    if (isNum) {
+      const number = document.createElement('span');
+      number.className = 'step-num';
+      number.textContent = `${line.match(/^\d+\./)?.[0] || ''} `;
+      const value = document.createElement('span');
+      value.className = 'step-val';
+      value.textContent = line.replace(/^\d+\./, '').trim();
+      lineElement.append(number, value);
+    } else {
+      lineElement.style.color = 'rgba(0,229,255,0.6)';
+      lineElement.textContent = line;
+    }
+    stepsElement.appendChild(lineElement);
+  });
+
+  if (!lines.length) {
+    const fallback = document.createElement('div');
+    fallback.style.color = 'var(--accent-purple)';
+    fallback.textContent = solution.substring(0, 300);
+    stepsElement.appendChild(fallback);
+  }
+  hw.appendChild(stepsElement);
+}
+
+
+setTimeout(() => {
+  const greeting = "Hello Sir, I am your chatbot. I am fully operational and ready to assist you with any task. How may I help you today?";
+  document.getElementById('responseText').innerHTML = greeting.replace(/\n/g, '<br>');
+  document.getElementById('faceSubtitle').textContent = 'How can I help you, Sir?';
+  speak(greeting);
+  setWaveActive('headerWave', true);
+}, 800);
+
+// Animate header wave continuously
+setInterval(() => {
+  if (!isSpeaking && !isListening) {
+    const bars = document.getElementById('headerWave').querySelectorAll('.wave-bar');
+    bars.forEach(b => b.classList.toggle('active', Math.random() > 0.45));
+  }
+}, 180);
+
+if (location.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(location.hostname)) {
+  window.addEventListener('load', () => {
+    setTimeout(startGestureControl, 1000);
+  }, { once: true });
+}
+</script>
+</body>
+</html>
