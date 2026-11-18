@@ -1366,11 +1366,6 @@
 </div>
 
 <script>
-const chatbotServiceUrl = 'http://127.0.0.1:5000/';
-if (location.host !== '127.0.0.1:5000' && location.host !== 'localhost:5000') {
-  location.replace(chatbotServiceUrl);
-}
-
 // ============== CLOCK ==============
 function updateClock() {
   const now = new Date();
@@ -1709,12 +1704,12 @@ async function startGestureControl() {
 
   try {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error('Camera access is unavailable. Open Chatbot from http://127.0.0.1:5000 in a supported browser.');
+      throw new Error('Camera access is unavailable. Open this site over HTTPS in a supported browser.');
     }
 
     const statusResponse = await fetch('/api/status');
     if (!statusResponse.ok) {
-      throw new Error('Gesture service unavailable. Start sign_server.py and open http://127.0.0.1:5000.');
+      throw new Error('Gesture service unavailable. Check the server status.');
     }
     const status = await statusResponse.json();
     if (!statusResponse.ok || !status.ready) {
@@ -2256,7 +2251,7 @@ setInterval(() => {
   }
 }, 180);
 
-if (location.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(location.hostname)) {
+if (location.protocol === 'https:' || ['127.0.0.1', 'localhost'].includes(location.hostname)) {
   window.addEventListener('load', () => {
     setTimeout(startGestureControl, 1000);
   }, { once: true });

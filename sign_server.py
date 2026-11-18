@@ -13,14 +13,25 @@ from PIL import Image
 
 BASE_DIR = Path(__file__).resolve().parent
 APP_DATA_DIR = Path(
-    os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")
+    os.environ.get(
+        "CHATBOT_DATA_DIR",
+        os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"),
+    )
 ) / "ChatbotGesture"
 WEBCAM_DATASET_DIR = APP_DATA_DIR / "webcam-dataset"
 TRAINED_MODEL_PATH = Path(
-    os.environ.get("CHATBOT_SIGN_MODEL", APP_DATA_DIR / "sign_model.keras")
+    os.environ.get(
+        "CHATBOT_SIGN_MODEL",
+        BASE_DIR / "models" / "sign_model.keras",
+    )
 )
 TRAINED_LABELS_PATH = TRAINED_MODEL_PATH.with_suffix(".labels.json")
-YOLO_HAND_MODEL_PATH = APP_DATA_DIR / "yolo11n_hand_best.pt"
+YOLO_HAND_MODEL_PATH = Path(
+    os.environ.get(
+        "CHATBOT_YOLO_MODEL",
+        BASE_DIR / "models" / "yolo11n_hand_best.pt",
+    )
+)
 MAX_FRAME_BYTES = 2 * 1024 * 1024
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 ANTHROPIC_MODEL = "claude-sonnet-4-20250514"
@@ -361,6 +372,21 @@ def chat():
     return jsonify(reply=reply)
 
 
+def load_model():
+    global model
+    if model is None:
+        try:
+            model = SignModel()
+        except Exception:
+            app.logger.exception("Sign model could not load.")
+
+
+load_model()
+
+
 if __name__ == "__main__":
-    model = SignModel()
-    app.run(host="127.0.0.1", port=5000, threaded=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", "5000")),
+        threaded=True,
+    )
